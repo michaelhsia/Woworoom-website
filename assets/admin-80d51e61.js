@@ -1,4 +1,4 @@
-import{S as d,a}from"./sweetalert2.all-148846b0.js";const h="oggzgZc1BxUhtj44EQmbV5QWDSI2",c="https://livejs-api.hexschool.io/api/livejs/v1/admin/michaelhsia",i={headers:{Authorization:h}};let l;function s(){a.get(`${c}/orders`,i).then(function(t){console.log(t.data.orders),l=t.data.orders,f(),B()}).catch(function(t){console.log(t)})}s();const u=document.querySelector(".orderPage-table");function f(){let t=`<thead>
+import{S as d,a}from"./sweetalert2.all-bd4fa1d5.js";const h="oggzgZc1BxUhtj44EQmbV5QWDSI2",c="https://livejs-api.hexschool.io/api/livejs/v1/admin/michaelhsia",i={headers:{Authorization:h}};let l;function s(){a.get(`${c}/orders`,i).then(function(t){console.log(t.data.orders),l=t.data.orders,f(),B()}).catch(function(t){console.log(t)})}s();const u=document.querySelector(".orderPage-table");function f(){let t=`<thead>
   <tr>
     <th>訂單編號</th>
     <th>聯絡人</th>
