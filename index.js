@@ -170,7 +170,6 @@ function renderShoppingCart(data, finalTotal) {
     <td>NT$${item.product.price}</td>
     <td>
     <div class="d-flex justify-content-between align-items-center">
-
         <button class="countIcon">
         <span class="material-icons" data-productId=${
           item.product.id

@@ -10,7 +10,7 @@
 
 .banner-text {
   position: absolute;
-  color: #FFFFFF;
+  color: #ffffff;
   font-size: 2rem;
   left: 50px;
   bottom: 50px;
@@ -46,7 +46,7 @@
 }
 
 .furniture-compare {
-  background-color: #F8F8F8;
+  background-color: #f8f8f8;
   padding: 50px 0 60px 0;
 }
 
@@ -78,7 +78,7 @@
 }
 
 .compare-table tr {
-  border-bottom: 1px solid #B9B9B9;
+  border-bottom: 1px solid #b9b9b9;
 }
 
 .compare-table tr td:first-child {
@@ -87,7 +87,7 @@
 }
 
 .compare-table .material-icons {
-  color: #6A33FF;
+  color: #6a33ff;
   -webkit-transform: scale(1.5);
   transform: scale(1.5);
 }
@@ -116,12 +116,12 @@
 }
 
 .recommendation {
-  background-color: #301E5F;
+  background-color: #301e5f;
   padding: 60px 0;
 }
 
 .recommendation h3 {
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 @media (max-width: 767px) {
@@ -160,7 +160,7 @@
   display: flex;
   margin-left: 30px;
   min-width: 350px;
-  background-color: #FFFFFF;
+  background-color: #ffffff;
 }
 
 .recommendation-card img {
@@ -203,7 +203,7 @@
 
 .recommend-text {
   font-size: 0.875rem;
-  color: #6A33F8;
+  color: #6a33f8;
 }
 
 .transport {
@@ -259,7 +259,6 @@
 }
 
 @media (max-width: 767px) {
-
   .transport-intro li:nth-child(1)::after,
   .transport-intro li:nth-child(2)::after,
   .transport-intro li:nth-child(3)::after {
@@ -326,7 +325,7 @@
 }
 
 .productSelect {
-  border: 1px solid #B9B9B9;
+  border: 1px solid #b9b9b9;
   color: #797979;
   min-height: 38px;
   min-width: 255px;
@@ -369,7 +368,7 @@
 }
 
 .productCard a:hover {
-  background-color: #301E5F;
+  background-color: #301e5f;
 }
 
 .productCard a,
@@ -407,7 +406,7 @@
 }
 
 .shoppingCart {
-  background-color: #F8F8F8;
+  background-color: #f8f8f8;
   padding: 60px 0;
 }
 
@@ -428,13 +427,37 @@
 }
 
 .shoppingCart-tbody tr {
-  border-bottom: 1px solid #B9B9B9;
+  border-bottom: 1px solid #b9b9b9;
 }
 
 @media (max-width: 767px) {
   .shoppingCart-table {
     width: 700px;
   }
+}
+
+.countIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2vw;
+  height: 2vw;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  @media (max-width: 767px) {
+    width: 3vw;
+    height: 3vw;
+  }
+  @media (max-width: 992px) {
+    width: 4vw;
+    height: 4vw;
+  }
+}
+
+.countIcon span {
+  width: 24px;
+  height: 24px;
 }
 
 .cardItem-title {
@@ -464,7 +487,7 @@
 }
 
 .discardBtn a:hover {
-  color: #6A33F8;
+  color: #6a33f8;
   -webkit-transform: scale(1.3);
   transform: scale(1.3);
 }
@@ -481,7 +504,7 @@
 
 .discardAllBtn:hover {
   background-color: #000000;
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 .orderInfo {
@@ -505,7 +528,7 @@
 .orderInfo-input {
   width: 100%;
   min-height: 38px;
-  border: 1px solid #CED4DA;
+  border: 1px solid #ced4da;
   border-radius: 5px;
   text-indent: 1rem;
   margin-right: 10px;
@@ -522,7 +545,7 @@
   top: 50%;
   -webkit-transform: translateY(-50%);
   transform: translateY(-50%);
-  color: #C72424;
+  color: #c72424;
 }
 
 @media (max-width: 767px) {
@@ -538,7 +561,7 @@
   min-width: 255px;
   min-height: 48px;
   background-color: #000000;
-  color: #FFFFFF;
+  color: #ffffff;
   border: 0;
   cursor: pointer;
   font-size: 1.25rem;
@@ -547,5 +570,5 @@
 }
 
 .orderInfo-btn:hover {
-  background-color: #301E5F;
+  background-color: #301e5f;
 }
