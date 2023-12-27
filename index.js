@@ -45,31 +45,63 @@ document.addEventListener("DOMContentLoaded", function () {
   ele.addEventListener("mousedown", mouseDownHandler);
 });
 
+// 初始渲染
+function init() {
+  getProduct();
+  getCart();
+}
+
+// 包裝用 function
+// 購物車沒東西時跳出視窗通知
+function clearCartAlert() {
+  Swal.fire({
+    title: "購物車沒東西了！快買點東西！",
+    icon: "warning",
+    showConfirmButton: false,
+    timer: 2000,
+  });
+}
+
+// 捕捉錯誤跳出視窗通知
+function catchErrorAlert(err) {
+  Swal.fire({
+    icon: "error",
+    title: "錯誤",
+    text: `${err.message}`,
+  });
+}
+
+// 每次做更新後重新渲染購物車
+function reRenderCart(res) {
+  cartData = res.data.carts;
+  finalTotal = res.data.finalTotal;
+  renderShoppingCart(cartData, finalTotal);
+}
+
+// 商品列表相關
 // 宣告變數儲存商品資訊
 let productData = [];
 
-// 取得商品資料
+// 取得商品資料功能
 function getProduct() {
   axios
     .get(`${url}/products`)
-    .then(function (res) {
+    .then((res) => {
       productData = res.data.products;
       renderProductList(productData);
     })
-    .catch(function (error) {
-      console.log(error);
+    .catch((err) => {
+      catchErrorAlert(err);
     });
 }
-
-getProduct();
 
 // 渲染商品列表資訊
 const productWrap = document.querySelector(".productWrap");
 
 function renderProductList(data) {
   let str = ``;
-  // data-id 加入購物車時使用
-  data.forEach(function (item) {
+  // data-id 是商品id 加入購物車 post 時使用
+  data.forEach((item) => {
     str += `<li class="productCard">
     <h4 class="productType">新品</h4>
     <img
@@ -78,7 +110,7 @@ function renderProductList(data) {
     />
     <a href="#" class="addCardBtn" data-id=${item.id}>加入購物車</a>
     <h3>${item.title}</h3>
-    <del class="originPrice">NT$${item.originPrice}</del>
+    <del class="originPrice">NT$${item.origin_price}</del>
     <p class="nowPrice">NT$${item.price}</p>
   </li>`;
   });
@@ -86,11 +118,12 @@ function renderProductList(data) {
   productWrap.innerHTML = str;
 }
 
-// 商品列表篩選功能
+// 商品列表篩選監聽
 const productSelect = document.querySelector(".productSelect");
 
 productSelect.addEventListener("change", renderSelectProducts);
 
+// 商品列表篩選功能
 function renderSelectProducts(e) {
   if (e.target.value === undefined) {
     return;
@@ -102,47 +135,40 @@ function renderSelectProducts(e) {
   } else {
     // filter 用來裝篩選後的產品
     let filterData = [];
-    data.forEach(function (item) {
+    productData.forEach((item) => {
       if (e.target.value === item.category) {
         filterData.push(item);
-        renderProductList(filterData);
       }
     });
+    renderProductList(filterData);
   }
 }
 
+// 購物車相關
 // 裝購物車資料，每一個商品加入購物車後都有獨立的購物車id(cartId)
 let cartData = [];
+// 購物車總價
+let finalTotal = 0;
 
 // 取得購物車資料
 function getCart() {
   axios
     .get(`${url}/carts`)
-    .then(function (res) {
-      cartData = res.data.carts;
-      let finalTotal = res.data.finalTotal;
-      renderShoppingCart(cartData, finalTotal);
+    .then((res) => {
+      reRenderCart(res);
       if (cartData.length === 0) {
-        Swal.fire({
-          title: "購物車沒東西了！快買點東西！",
-          icon: "warning",
-          showConfirmButton: false,
-          timer: 2000,
-        });
+        clearCartAlert();
       }
-
-      console.log(cartData);
     })
-    .catch(function (error) {
-      console.log(error);
+    .catch((err) => {
+      catchErrorAlert(err);
     });
 }
 
-getCart();
-
-// 渲染購物車
+// 渲染購物車表格監聽
 const shoppingCartTable = document.querySelector(".shoppingCart-table");
 
+// 渲染購物車功能
 function renderShoppingCart(data, finalTotal) {
   // 如果購物車沒東西就不渲染，直接 return
   if (cartData.length === 0) {
@@ -150,15 +176,17 @@ function renderShoppingCart(data, finalTotal) {
     return;
   }
 
-  let str = `<tr>
+  let str = `<thead>
+  <tr>
     <th width="40%">品項</th>
     <th width="15%">單價</th>
     <th width="15%">數量</th>
     <th width="15%">金額</th>
     <th width="15%"></th>
-    </tr>`;
+  </tr>
+</thead>`;
 
-  // data-productId 及 data-cartId 作為後續購物車商品數量加減及戳 API 使用
+  // data-num 追蹤購物車的商品數量、data-id 用來更新購物車時戳 API 使用
   data.forEach(function (item) {
     str += `<tr>
     <td>
@@ -171,46 +199,45 @@ function renderShoppingCart(data, finalTotal) {
     <td>
     <div class="d-flex justify-content-between align-items-center">
         <button class="countIcon">
-        <span class="material-icons" data-productId=${
-          item.product.id
-        } data-cartId=${item.id}>removed</span>
+        <span class="material-icons" data-name="cartAmount-icon" data-num=${
+          item.quantity - 1
+        } data-id=${item.id}>removed</span>
         </button>
        ${
          item.quantity
-       }<button class="countIcon"><span class="material-icons" data-productId=${
-      item.product.id
-    } data-cartId=${item.id}>add</span>
+       }<button class="countIcon"><span class="material-icons"  data-name="cartAmount-icon" data-num=${
+      item.quantity + 1
+    } data-id=${item.id}>add</span>
         </button>
         </div>
     </td>
     <td>NT$${item.product.price * item.quantity}</td>
     <td class="discardBtn">
-      <a href="#" class="material-icons" data-name="delete" data-cartId=${
+      <a href="#" class="material-icons" data-name="delete" data-id=${
         item.id
       }> clear </a>
     </td>
   </tr>`;
   });
 
-  str += `<tr>
-        <td>
-        <a href="#" class="discardAllBtn">刪除所有品項</a>
-        </td>
-        <td></td>
-        <td></td>
-        <td>
-        <p>總金額</p>
-        </td>
-        <td>NT$${finalTotal}</td>
-    </tr>`;
+  str += `<tfoot>
+  <tr>
+    <td>
+      <a href="#" class="discardAllBtn">刪除所有品項</a>
+    </td>
+    <td></td>
+    <td></td>
+    <td>
+      <p>總金額</p>
+    </td>
+    <td>NT$ ${finalTotal}</td>
+  </tr>
+</tfoot>`;
 
   shoppingCartTable.innerHTML = str;
 }
 
-// 用物件計算該商品是否已被加過
-let productObj = {};
-
-// 加入購物車按鈕 -> 第一次加入用 post、第二次以上 patch quantity
+// 購物車列表監聽
 productWrap.addEventListener("click", function (e) {
   e.preventDefault();
 
@@ -219,149 +246,137 @@ productWrap.addEventListener("click", function (e) {
     return;
   }
 
-  // 商品第一次加入
   let productId = e.target.getAttribute("data-id");
+  let numCheck = 1;
 
-  // productObj 物件中還沒有該商品，就在物件中加入
-  if (productObj[productId] === undefined) {
-    productObj[productId] = 1;
+  // 判斷購物車內是否已經有該商品，有的話商品數 + 1
+  cartData.forEach((item) => {
+    if (item.product.id === productId) {
+      numCheck = item.quantity += 1;
+    }
+  });
 
-    // post 加入購物車，要用 productId
+  addProductToCart(productId, numCheck);
+});
+
+// 加入購物車功能，用三元運算子偵測 alert 顯示文字
+function addProductToCart(productId, numCheck) {
+  axios
+    .post(`${url}/carts`, {
+      data: {
+        productId: productId,
+        quantity: numCheck,
+      },
+    })
+    .then((res) => {
+      reRenderCart(res);
+
+      Swal.fire({
+        title: `${numCheck === 1 ? "成功加入新商品" : "成功更新已有商品數量"}`,
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+    })
+    .catch((err) => {
+      catchErrorAlert(err);
+    });
+}
+
+// 購物車表格監聽
+shoppingCartTable.addEventListener("click", function (e) {
+  e.preventDefault();
+
+  // id 為購物車 id，num 為該購物車商品數量
+  let id = e.target.dataset.id;
+  let num = parseInt(e.target.dataset.num);
+
+  // 刪除單一購物車判斷
+  if (e.target.getAttribute("data-name") === "delete") {
+    delSingleBtn(id);
+  }
+  // 購物車數字加減按鈕判斷
+  else if (e.target.getAttribute("data-name") === "cartAmount-icon") {
+    editCartNum(num, id);
+  }
+  // 刪除所有購物車判斷
+  else if (e.target.getAttribute("class") === "discardAllBtn") {
+    delAllCart();
+  }
+});
+
+// 刪除單一購物車功能
+function delSingleBtn(id) {
+  axios
+    .delete(`${url}/carts/${id}`)
+    .then((res) => {
+      reRenderCart(res);
+
+      Swal.fire({
+        title: "成功刪除商品",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+      if (cartData.length === 0) {
+        setTimeout(function () {
+          clearCartAlert();
+        }, 1500);
+      }
+    })
+    .catch(function (err) {
+      catchErrorAlert(err);
+    });
+}
+
+// 購物車數字加減按鈕功能
+function editCartNum(num, id) {
+  if (num > 0) {
     axios
-      .post(`${url}/carts`, {
+      .patch(`${url}/carts`, {
         data: {
-          productId: productId,
-          quantity: 1,
+          id: id,
+          quantity: num,
         },
       })
-      .then(function () {
-        getCart();
+      .then((res) => {
+        reRenderCart(res);
         Swal.fire({
-          title: "成功加入新商品",
+          title: "成功更新已有商品數量",
           icon: "success",
           showConfirmButton: false,
           timer: 1500,
         });
-
-        console.log(`成功新增${e.target.getAttribute("data-id")}`);
       })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  // productObj 物件中已有該商品，每次值都加一
-  else {
-    // 購物車中該商品數量加一
-    productObj[productId] += 1;
-
-    cartData.forEach(function (item) {
-      console.log(item.product.id, productId);
-      // 如果購物車內已存在的商品 id 等於「加入購物車」按鈕的商品 id，就在該購物車 id(item.id)更新目前該商品的數量 productObj[productId]
-      // patch 要使用購物車 id
-      if (item.product.id === productId) {
-        axios
-          .patch(`${url}/carts`, {
-            data: {
-              id: item.id,
-              quantity: productObj[productId],
-            },
-          })
-          .then(function () {
-            getCart();
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
-      }
-    });
-  }
-});
-
-// 購物車功能
-shoppingCartTable.addEventListener("click", function (e) {
-  e.preventDefault();
-
-  // 取得點擊的購物車的 id
-  let cartId = e.target.getAttribute("data-cartId");
-  // 取得點擊的產品的 id，以當作 productObj 的 keys 來辨別購物車商品數量
-  let productId = e.target.getAttribute("data-productId");
-
-  console.log(productId, cartId);
-
-  // 刪除所有購物車功能
-  if (e.target.getAttribute("class") === "discardAllBtn") {
-    axios
-      .delete(`${url}/carts`)
-      .then(function () {
-        getCart();
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  // 刪除單一購物車功能
-  else if (e.target.getAttribute("data-name") === "delete") {
-    axios
-      .delete(`${url}/carts/${cartId}`)
-      .then(function () {
-        getCart();
-      })
-      .catch(function (error) {
-        console.log(error);
-      });
-  }
-  // 購物車產品減一
-  else if (e.target.textContent === "removed") {
-    // 按減號時，如果數字等於一，就跟刪除單一產品相同功能
-    if (productObj[productId] === 1) {
-      axios
-        .delete(`${url}/carts/${cartId}`)
-        .then(function () {
-          getCart();
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    } else if (productObj[productId] > 1) {
-      // 按減號時，如果數字大於一，就把該商品 id 數量減一後，重新 patch
-      productObj[productId] -= 1;
-
-      axios
-        .patch(`${url}/carts`, {
-          data: {
-            id: cartId,
-            quantity: productObj[productId],
-          },
-        })
-        .then(function () {
-          getCart();
-        })
-        .catch(function (error) {
-          console.log(error);
-        });
-    }
-  }
-  // 購物車產品加一
-  else if (e.target.textContent === "add") {
-    productObj[productId] += 1;
-
-    axios
-      .patch(`${url}/carts`, {
-        data: {
-          id: cartId,
-          quantity: productObj[productId],
-        },
-      })
-      .then(function () {
-        getCart();
-      })
-      .catch(function (error) {
-        console.log(error);
+      .catch(function (err) {
+        catchErrorAlert(err);
       });
   } else {
-    return;
+    delSingleBtn(id);
   }
-});
+}
+
+// 刪除所有購物車功能
+function delAllCart() {
+  axios
+    .delete(`${url}/carts`)
+    .then((res) => {
+      reRenderCart(res);
+      Swal.fire({
+        title: "成功清空購物車",
+        icon: "success",
+        showConfirmButton: false,
+        timer: 1500,
+      });
+
+      setTimeout(function () {
+        clearCartAlert();
+      }, 1500);
+    })
+    .catch((err) => {
+      catchErrorAlert(err);
+    });
+}
 
 // 前台表單
 const orderInfoForm = document.querySelector(".orderInfo-form");
@@ -398,10 +413,19 @@ function postOrder() {
         },
       },
     })
-    .then(function () {
+    .then(() => {
       // 送出後清空表單
       orderInfoForm.reset();
       // post orders 後，購物車會自動清空，直接 getCart 渲染就好
       getCart();
+    })
+    .catch((err) => {
+      Swal.fire({
+        icon: "error",
+        title: "錯誤",
+        text: `${err.message}`,
+      });
     });
 }
+
+init();
